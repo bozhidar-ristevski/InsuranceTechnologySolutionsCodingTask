@@ -1,3 +1,4 @@
+using Claims.Application;
 using Claims.Application.Abstractions;
 using Claims.Application.Claims;
 using Claims.Application.Claims.Models;
@@ -103,7 +104,7 @@ public sealed class ClaimServiceTests
 
         Assert.Equal(cover.Id, created.CoverId);
         Assert.Equal(5000, created.DamageCost);
-        Assert.Contains(_audits.Items, item => item.Kind == "Claim" && item.HttpRequestType == IAuditPublisher.Post);
+        Assert.Contains(_audits.Items, item => item.Kind == "Claim" && item.HttpRequestType == Consts.Post);
         Assert.Single(await _claims.GetAllAsync(CancellationToken.None));
     }
 
@@ -198,7 +199,7 @@ public sealed class ClaimServiceTests
         await _sut.DeleteAsync(created.Id, CancellationToken.None);
 
         Assert.Empty(await _claims.GetAllAsync(CancellationToken.None));
-        Assert.Contains(_audits.Items, item => item.Kind == "Claim" && item.HttpRequestType == IAuditPublisher.Delete && item.Id == created.Id);
+        Assert.Contains(_audits.Items, item => item.Kind == "Claim" && item.HttpRequestType == Consts.Delete && item.Id == created.Id);
     }
 
     [Fact]

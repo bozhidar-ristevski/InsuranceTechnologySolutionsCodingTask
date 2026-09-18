@@ -1,3 +1,4 @@
+using Claims.Application;
 using Claims.Application.Abstractions;
 using Claims.Application.Covers;
 using Claims.Application.Covers.Models;
@@ -70,7 +71,7 @@ public sealed class CoverServiceTests
         }, CancellationToken.None);
 
         Assert.True(created.Premium > 0);
-        Assert.Contains(_audits.Items, item => item.Kind == "Cover" && item.HttpRequestType == IAuditPublisher.Post);
+        Assert.Contains(_audits.Items, item => item.Kind == "Cover" && item.HttpRequestType == Consts.Post);
     }
 
     [Fact]
@@ -123,7 +124,7 @@ public sealed class CoverServiceTests
         await _sut.DeleteAsync(created.Id, CancellationToken.None);
 
         Assert.Empty(await _covers.GetAllAsync(CancellationToken.None));
-        Assert.Contains(_audits.Items, item => item.Kind == "Cover" && item.HttpRequestType == IAuditPublisher.Delete && item.Id == created.Id);
+        Assert.Contains(_audits.Items, item => item.Kind == "Cover" && item.HttpRequestType == Consts.Delete && item.Id == created.Id);
     }
 
     [Fact]
