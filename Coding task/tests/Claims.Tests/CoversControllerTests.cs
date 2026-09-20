@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using Claims.Application.Covers.Models;
 using Claims.Domain.Enums;
 using Claims.Domain.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace Claims.Tests;
@@ -33,6 +35,7 @@ public sealed class CoversControllerTests
         var response = await _client.GetAsync("/Covers/missing", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        await AssertProblemDetailsAsync(response, StatusCodes.Status404NotFound);
     }
 
     [Fact]
@@ -76,6 +79,7 @@ public sealed class CoversControllerTests
         }, ApiFixture.JsonOptions, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertProblemDetailsAsync(response, StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -93,5 +97,15 @@ public sealed class CoversControllerTests
         response.EnsureSuccessStatusCode();
         var premium = await response.Content.ReadFromJsonAsync<decimal>(TestContext.Current.CancellationToken);
         Assert.Equal(expected, premium);
+    }
+
+    private static async Task AssertProblemDetailsAsync(HttpResponseMessage response, int statusCode)
+    {
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiFixture.JsonOptions, TestContext.Current.CancellationToken);
+        Assert.NotNull(problem);
+        Assert.Equal(statusCode, problem.Status);
+        Assert.False(string.IsNullOrWhiteSpace(problem.Title));
+        Assert.False(string.IsNullOrWhiteSpace(problem.Detail));
     }
 }
