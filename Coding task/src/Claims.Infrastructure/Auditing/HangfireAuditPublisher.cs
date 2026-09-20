@@ -12,15 +12,15 @@ public sealed class HangfireAuditPublisher : IAuditPublisher
         _backgroundJobs = backgroundJobs;
     }
 
-    public ValueTask PublishClaimAsync(string claimId, string httpRequestType, CancellationToken cancellationToken)
+    public ValueTask PublishClaimAsync(string claimId, string httpRequestType, DateTime dateTimeStamp, CancellationToken cancellationToken)
     {
-        _backgroundJobs.Enqueue<AuditJobs>(job => job.PublishClaimAsync(claimId, httpRequestType));
+        _backgroundJobs.Enqueue<AuditJobs>(job => job.PublishClaimAsync(claimId, httpRequestType, dateTimeStamp));
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask PublishCoverAsync(string coverId, string httpRequestType, CancellationToken cancellationToken)
+    public ValueTask PublishCoverAsync(string coverId, string httpRequestType, DateTime dateTimeStamp,  CancellationToken cancellationToken)
     {
-        _backgroundJobs.Enqueue<AuditJobs>(job => job.PublishCoverAsync(coverId, httpRequestType));
+        _backgroundJobs.Enqueue<AuditJobs>(job => job.PublishCoverAsync(coverId, httpRequestType, dateTimeStamp));
         return ValueTask.CompletedTask;
     }
 }

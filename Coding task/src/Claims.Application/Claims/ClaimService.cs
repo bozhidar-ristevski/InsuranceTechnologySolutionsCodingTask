@@ -10,15 +10,18 @@ public sealed class ClaimService : IClaimService
     private readonly IClaimRepository _claims;
     private readonly ICoverRepository _covers;
     private readonly IAuditPublisher _auditPublisher;
+    private readonly IClock _clock;
 
     public ClaimService(
         IClaimRepository claims,
         ICoverRepository covers,
-        IAuditPublisher auditPublisher)
+        IAuditPublisher auditPublisher,
+        IClock clock)
     {
         _claims = claims;
         _covers = covers;
         _auditPublisher = auditPublisher;
+        _clock = clock;
     }
 
     public async Task<IReadOnlyList<ClaimDto>> GetAllAsync(CancellationToken cancellationToken)
@@ -50,7 +53,7 @@ public sealed class ClaimService : IClaimService
             request.DamageCost);
 
         await _claims.AddAsync(claim, cancellationToken);
-        await _auditPublisher.PublishClaimAsync(claim.Id, Consts.Post, cancellationToken);
+        await _auditPublisher.PublishClaimAsync(claim.Id, Consts.Post, _clock.UtcNow, cancellationToken);
 
         return claim.ToDto();
     }
@@ -60,7 +63,7 @@ public sealed class ClaimService : IClaimService
         var claim = await _claims.GetByIdAsync(id, cancellationToken)
                     ?? throw new NotFoundException(nameof(Claim), id);
 
-        await _auditPublisher.PublishClaimAsync(claim.Id, Consts.Delete, cancellationToken);
+        await _auditPublisher.PublishClaimAsync(claim.Id, Consts.Delete, _clock.UtcNow, cancellationToken);
         await _claims.DeleteAsync(claim, cancellationToken);
     }
 }

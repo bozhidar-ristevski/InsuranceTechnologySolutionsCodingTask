@@ -48,7 +48,7 @@ public sealed class CoverService : ICoverService
         var cover = Cover.Create(request.StartDate, request.EndDate, request.Type, premium);
 
         await _covers.AddAsync(cover, cancellationToken);
-        await _auditPublisher.PublishCoverAsync(cover.Id, Consts.Post, cancellationToken);
+        await _auditPublisher.PublishCoverAsync(cover.Id, Consts.Post, _clock.UtcNow, cancellationToken);
 
         return CoverDto.From(cover);
     }
@@ -58,7 +58,7 @@ public sealed class CoverService : ICoverService
         var cover = await _covers.GetByIdAsync(id, cancellationToken)
                     ?? throw new NotFoundException(nameof(Cover), id);
 
-        await _auditPublisher.PublishCoverAsync(cover.Id, Consts.Delete, cancellationToken);
+        await _auditPublisher.PublishCoverAsync(cover.Id, Consts.Delete, _clock.UtcNow, cancellationToken);
         await _covers.DeleteAsync(cover, cancellationToken);
     }
 

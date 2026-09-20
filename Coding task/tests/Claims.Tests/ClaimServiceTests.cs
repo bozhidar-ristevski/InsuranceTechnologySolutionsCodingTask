@@ -15,11 +15,12 @@ public sealed class ClaimServiceTests
     private readonly InMemoryClaimRepository _claims = new();
     private readonly InMemoryCoverRepository _covers = new();
     private readonly RecordingAuditPublisher _audits = new();
+    private readonly IClock _clock = new FixedClock(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
     private readonly ClaimService _sut;
 
     public ClaimServiceTests()
     {
-        _sut = new ClaimService(_claims, _covers, _audits);
+        _sut = new ClaimService(_claims, _covers, _audits, _clock);
     }
 
     [Fact]
