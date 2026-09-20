@@ -53,7 +53,7 @@ public sealed class CoversController : ControllerBase
     public async Task<ActionResult<CoverDto>> CreateAsync(CreateCoverRequest request, CancellationToken cancellationToken)
     {
         var created = await _covers.CreateAsync(request, cancellationToken);
-        return Ok(created);
+        return Created($"/{GetType().Name.Replace("Controller", "")}/{created.Id}", created);
     }
 
     /// <summary>
@@ -63,6 +63,6 @@ public sealed class CoversController : ControllerBase
     public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
     {
         await _covers.DeleteAsync(id, cancellationToken);
-        return Ok();
+        return NoContent();
     }
 }

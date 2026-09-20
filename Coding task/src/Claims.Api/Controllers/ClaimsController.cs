@@ -43,7 +43,7 @@ public sealed class ClaimsController : ControllerBase
     public async Task<ActionResult<ClaimDto>> CreateAsync(CreateClaimRequest request, CancellationToken cancellationToken)
     {
         var created = await _claims.CreateAsync(request, cancellationToken);
-        return Ok(created);
+        return Created($"/{GetType().Name.Replace("Controller", "")}/{created.Id}", created);
     }
 
     /// <summary>
@@ -53,6 +53,6 @@ public sealed class ClaimsController : ControllerBase
     public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
     {
         await _claims.DeleteAsync(id, cancellationToken);
-        return Ok();
+        return NoContent();
     }
 }
