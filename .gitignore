@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Coding task/src/Claims.Infrastructure/bin/Debug/net9.0
+/Coding task/src/Claims.Api/bin/Debug/net9.0
+/Coding task/src/Claims.Application/bin/Debug/net9.0
+/Coding task/src/Claims.Domain/bin/Debug/net9.0

@@ -17,6 +17,11 @@ public static class ClaimValidator
             errors.Add("DamageCost cannot exceed 100.000.");
         }
 
+        if (request.DamageCost <= 0)
+        {
+            errors.Add("DamageCost must be greater than 0.");
+        }
+
         if (!cover.ContainsDate(request.Created))
         {
             errors.Add("Created date must be within the period of the related Cover.");

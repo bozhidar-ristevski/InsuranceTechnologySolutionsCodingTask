@@ -1,9 +1,12 @@
 using Claims.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Claims.Api.Middleware;
 
 public sealed class ExceptionHandlingMiddleware
 {
+    private const string ProblemJson = "application/problem+json";
+
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
@@ -21,19 +24,49 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (ValidationException exception)
         {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsJsonAsync(new { errors = exception.Errors });
+            await WriteProblemAsync(
+                context,
+                new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    [string.Empty] = exception.Errors.ToArray()
+                })
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "One or more validation errors occurred.",
+                    Detail = string.Join("; ", exception.Errors),
+                    Instance = context.Request.Path
+                });
         }
         catch (NotFoundException exception)
         {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            await context.Response.WriteAsJsonAsync(new { message = exception.Message });
+            await WriteProblemAsync(
+                context,
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Title = "Not Found",
+                    Detail = exception.Message,
+                    Instance = context.Request.Path
+                });
         }
         catch (Exception exception)
         {
             _logger.LogError(exception, "Unhandled exception");
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsJsonAsync(new { message = "An unexpected error occurred." });
+            await WriteProblemAsync(
+                context,
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Title = "An unexpected error occurred.",
+                    Detail = "An unexpected error occurred.",
+                    Instance = context.Request.Path
+                });
         }
+    }
+
+    private static async Task WriteProblemAsync(HttpContext context, ProblemDetails problem)
+    {
+        context.Response.StatusCode = problem.Status ?? StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(problem, options: null, contentType: ProblemJson);
     }
 }
